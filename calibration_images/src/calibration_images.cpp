@@ -2,8 +2,13 @@
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include "cv.h"
+#if (CV_VERSION_MAJOR >= 4)
+#include "opencv2/opencv.hpp"
+#include "opencv2/highgui.hpp"
+#else
+#include "cv.h"       // OpenCV 4 deprecated c-api headers 
 #include "highgui.h"
+#endif
 #include <sstream>
 #include <cstdlib>
 #include <string>

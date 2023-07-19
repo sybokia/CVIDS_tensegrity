@@ -1,0 +1,6 @@
+- Updated support for OpenCV 4.0+ (should still support <4.0)
+- Updated support for Ceres 2.2.0+
+- Updated support for newer version of CUDA (tested on 12.2) WIP
+- Updated cmake for Eigen 3
+- Ubuntu 20.04 PCL requires C++14
+- Other minor fixes

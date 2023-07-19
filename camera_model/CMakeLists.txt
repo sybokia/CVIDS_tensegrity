@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 2.8.3)
+# cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(camera_model)
 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fPIC")
+# set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++14")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fPIC -D BUILD_opencv_sfm=OFF")
 
 find_package(catkin REQUIRED COMPONENTS
     roscpp
@@ -19,6 +21,14 @@ find_package(OpenCV REQUIRED)
 find_package(Ceres REQUIRED)
 include_directories(${CERES_INCLUDE_DIRS})
 
+# find_package(CUDA REQUIRED)
+# set(CUDA_NVCC_FLAGS
+#     ${CUDA_NVCC_FLAGS};
+#     #    -std=c++11 -O3 -gencode arch=compute_30,code=sm_30  # T440s
+#     #    -std=c++11 -O3 -gencode arch=compute_53,code=sm_53  # tx1
+#     # -std=c++11 -O3 -gencode arch=compute_75,code=sm_75  # gtx 980 Ti / 1080
+#     -std=c++14 -O3 -gencode arch=compute_75,code=sm_75  # gtx 980 Ti / 1080
+#     )
 
 catkin_package(
     INCLUDE_DIRS include
@@ -47,8 +57,10 @@ add_executable(Calibration
     src/camera_models/ScaramuzzaCamera.cc
     src/sparse_graph/Transform.cc
     src/gpl/gpl.cc
-    src/gpl/EigenQuaternionParameterization.cc)
+    src/gpl/EigenQuaternionParameterization.cc
+    )
 
+# cuda_add_library(camera_model
 add_library(camera_model
     src/chessboard/Chessboard.cc
     src/calib/CameraCalibration.cc
@@ -61,7 +73,14 @@ add_library(camera_model
     src/camera_models/ScaramuzzaCamera.cc
     src/sparse_graph/Transform.cc
     src/gpl/gpl.cc
-    src/gpl/EigenQuaternionParameterization.cc)
+    src/gpl/EigenQuaternionParameterization.cc
+)
 
-target_link_libraries(Calibration ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+target_link_libraries(Calibration 
+    ${Boost_LIBRARIES} 
+    ${OpenCV_LIBS} 
+    ${CERES_LIBRARIES}
+)
 target_link_libraries(camera_model ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES})
+# target_link_libraries(Calibration ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} ${CUDA_LIBRARIES})
+# target_link_libraries(camera_model ${Boost_LIBRARIES} ${OpenCV_LIBS} ${CERES_LIBRARIES} ${CUDA_LIBRARIES})

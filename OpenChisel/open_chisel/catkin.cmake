@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 find_package(catkin REQUIRED)
-catkin_package(INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME})
 
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
-include_directories(${Eigen_INCLUDE_DIRS})
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+catkin_package(INCLUDE_DIRS include ${EIGEN3_INCLUDE_DIR}
+    LIBRARIES ${PROJECT_NAME})
 
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++0x")

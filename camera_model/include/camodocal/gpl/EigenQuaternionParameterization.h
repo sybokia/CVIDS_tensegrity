@@ -1,12 +1,14 @@
 #ifndef EIGENQUATERNIONPARAMETERIZATION_H
 #define EIGENQUATERNIONPARAMETERIZATION_H
 
-#include "ceres/local_parameterization.h"
+// LocalParameterization are deprecated and removed in v2.2.0. Please use Manifold instead.
+// #include "ceres/local_parameterization.h" 
+#include "ceres/manifold.h"
 
 namespace camodocal
 {
 
-class EigenQuaternionParameterization : public ceres::LocalParameterization
+class EigenQuaternionParameterization : public ceres::Manifold
 {
 public:
     virtual ~EigenQuaternionParameterization() {}
@@ -17,6 +19,19 @@ public:
                                  double* jacobian) const;
     virtual int GlobalSize() const { return 4; }
     virtual int LocalSize() const { return 3; }
+
+    // vitrual function definitions required for virtual class templates
+    virtual int AmbientSize() const { return 0; };
+    virtual int TangentSize() const { return 0; };
+    virtual bool PlusJacobian(const double* x, double* jacobian) const { return false; };
+    virtual bool RightMultiplyByPlusJacobian(const double* x,
+                                             const int num_rows,
+                                             const double* ambient_matrix,
+                                             double* tangent_matrix) const { return false; };
+    virtual bool Minus(const double* y,
+                       const double* x,
+                       double* y_minus_x) const { return 0; };
+    virtual bool MinusJacobian(const double* x, double* jacobian) const { return false; };
 
 private:
     template<typename T>

@@ -1,13 +1,15 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(server_pose_graph)
+# 3.8 required for working with CUDA as a language
+cmake_minimum_required(VERSION 3.8)
+project(server_pose_graph LANGUAGES CXX CUDA)
 
+# C++14 required for one of deb dependencies on Ubuntu 20.04
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CUDA_STANDARD_REQUIRED TRUE) 
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11")
-#-DEIGEN_USE_MKL_ALL")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g -fopenmp")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -DNDEBUG")
 
-
-#set(cv_bridge_DIR /usr/local/cv_bridge341/share/cv_bridge/cmake)
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
@@ -21,50 +23,31 @@ find_package(catkin REQUIRED COMPONENTS
     roslib
 )
 
+catkin_package(
+  CATKIN_DEPENDS
+    roscpp
+    camera_model
+    roslib
+)
 
-set(OpenCV_DIR "/usr/local/share/OpenCV") 
 find_package(OpenCV REQUIRED)
-
-message(WARNING "OpenCV_VERSION: ${OpenCV_VERSION}")
-
 find_package(Ceres REQUIRED)
-
 find_package(Sophus REQUIRED)
-add_definitions(-w)
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3)
-
-include_directories(
-	${catkin_INCLUDE_DIRS} 
-	${CERES_INCLUDE_DIRS}  
-	${EIGEN3_INCLUDE_DIR}
-	${Sophus_INCLUDE_DIR}
-    )
-
-#Pangolin
-FIND_PACKAGE( Pangolin )
-INCLUDE_DIRECTORIES( ${Pangolin_INCLUDE_DIRS} )
-
-#Octomap
-FIND_PACKAGE(octomap REQUIRED)
-INCLUDE_DIRECTORIES( ${OCTOMAP_INCLUDE_DIRS})
-
-#Cuda
-find_package(CUDA REQUIRED)
-set(CUDA_NVCC_FLAGS
-    ${CUDA_NVCC_FLAGS};
-    #    -std=c++11 -O3 -gencode arch=compute_30,code=sm_30  # T440s
-    #    -std=c++11 -O3 -gencode arch=compute_53,code=sm_53  # tx1
-    -std=c++11 -O3 -gencode arch=compute_75,code=sm_75  # gtx 980 Ti / 1080
-    )
+find_package(Pangolin)
+find_package(octomap REQUIRED)
 
 
+INCLUDE_DIRECTORIES( 
+    ${catkin_INCLUDE_DIRS}
+    ${Ceres_INCLUDE_DIRS}
+    ${Sophus_INCLUDE_DIR}
+    ${EIGEN3_INCLUDE_DIR}
+    ${Pangolin_INCLUDE_DIRS}
+    ${OCTOMAP_INCLUDE_DIRS} 
+)
 
-catkin_package()
-
-
-cuda_add_executable(server_pose_graph
+add_executable(server_pose_graph
     include/fmc/findClique.cpp
     include/fmc/findCliqueHeu.cpp
     include/fmc/graphIO.cpp
@@ -96,8 +79,7 @@ cuda_add_executable(server_pose_graph
     ThirdParty/DUtils/Timestamp.cpp
     ThirdParty/DVision/BRIEF.cpp
     ThirdParty/VocabularyBinary.cpp
-    )
-
+)
 
 target_link_libraries(server_pose_graph 
 	${catkin_LIBRARIES} 
@@ -106,5 +88,4 @@ target_link_libraries(server_pose_graph
 	${Sophus_LIBRARIES}
     ${Pangolin_LIBRARIES}
     ${OCTOMAP_LIBRARIES}
-    ${CUDA_LIBRARIES}
-    ) 
+) 
